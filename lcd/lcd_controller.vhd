@@ -1,48 +1,10 @@
 --------------------------------------------------------------------------------
+--  This file is a derivation of the implementation found at
+--	https://eewiki.net/download/attachments/4096079/lcd_controller.vhd?version=3&modificationDate=1339620193283&api=v2
 --
---   FileName:         lcd_controller.vhd
---   Dependencies:     none
---   Design Software:  Quartus II 32-bit Version 11.1 Build 173 SJ Full Version
+-- This version works in 4bit mode for 16x2 LCD's .
 --
---   HDL CODE IS PROVIDED "AS IS."  DIGI-KEY EXPRESSLY DISCLAIMS ANY
---   WARRANTY OF ANY KIND, WHETHER EXPRESS OR IMPLIED, INCLUDING BUT NOT
---   LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
---   PARTICULAR PURPOSE, OR NON-INFRINGEMENT. IN NO EVENT SHALL DIGI-KEY
---   BE LIABLE FOR ANY INCIDENTAL, SPECIAL, INDIRECT OR CONSEQUENTIAL
---   DAMAGES, LOST PROFITS OR LOST DATA, HARM TO YOUR EQUIPMENT, COST OF
---   PROCUREMENT OF SUBSTITUTE GOODS, TECHNOLOGY OR SERVICES, ANY CLAIMS
---   BY THIRD PARTIES (INCLUDING BUT NOT LIMITED TO ANY DEFENSE THEREOF),
---   ANY CLAIMS FOR INDEMNITY OR CONTRIBUTION, OR OTHER SIMILAR COSTS.
---
---   Version History
---   Version 1.0 6/2/2006 Scott Larson
---     Initial Public Release
---    Version 2.0 6/13/2012 Scott Larson
---
---   CLOCK FREQUENCY: to change system clock frequency, change Line 65
---
---   LCD INITIALIZATION SETTINGS: to change, comment/uncomment lines:
---
---   Function Set
---      2-line mode, display on             Line 93    lcd_data <= "00111100";
---      1-line mode, display on             Line 94    lcd_data <= "00110100";
---      1-line mode, display off            Line 95    lcd_data <= "00110000";
---      2-line mode, display off            Line 96    lcd_data <= "00111000";
---   Display ON/OFF
---      display on, cursor off, blink off   Line 104   lcd_data <= "00001100";
---      display on, cursor off, blink on    Line 105   lcd_data <= "00001101";
---      display on, cursor on, blink off    Line 106   lcd_data <= "00001110";
---      display on, cursor on, blink on     Line 107   lcd_data <= "00001111";
---      display off, cursor off, blink off  Line 108   lcd_data <= "00001000";
---      display off, cursor off, blink on   Line 109   lcd_data <= "00001001";
---      display off, cursor on, blink off   Line 110   lcd_data <= "00001010";
---      display off, cursor on, blink on    Line 111   lcd_data <= "00001011";
---   Entry Mode Set
---      increment mode, entire shift off    Line 127   lcd_data <= "00000110";
---      increment mode, entire shift on     Line 128   lcd_data <= "00000111";
---      decrement mode, entire shift off    Line 129   lcd_data <= "00000100";
---      decrement mode, entire shift on     Line 130   lcd_data <= "00000101";
---
+-- Sitronix ST7066U  Dot Matrix LCD Controller/Driver referenced
 --------------------------------------------------------------------------------
 
 LIBRARY ieee;
