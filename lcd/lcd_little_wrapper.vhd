@@ -33,7 +33,22 @@ architecture behavioral of lcd_little_wrapper is
   signal i_lcd_bus     : std_logic_vector(9 downto 0);
   signal busy          : std_logic;
   signal current_state : state_t := reset_st;
-  signal my_word       : vector_array_t;
+  signal my_word       : vector_array_t := ("1001000001",
+                                            "1001000010",
+                                            "1001000011",
+                                            "1001000100",
+                                            "1001000101",
+                                            "1001000110",
+                                            "1001000111",
+                                            "1001001000",
+                                            "1001001001",
+                                            "1001001010",
+                                            "1001001011",
+                                            "1001001100",
+                                            "1001001101",
+                                            "1001001110",
+                                            "1001001111",
+                                            "1001010001");
 
 begin
 
