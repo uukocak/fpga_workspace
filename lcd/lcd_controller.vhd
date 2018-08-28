@@ -17,8 +17,10 @@ entity lcd_controller is
     lcd_enable : in    std_logic;  --latches data into lcd controller
     lcd_bus    : in    std_logic_vector(9 downto 0);  --data and control signals
     busy       : out   std_logic := '1';  --lcd controller busy/idle feedback
-    rw, rs, e  : out   std_logic;  --read/write, setup/data, and enable for lcd
-    lcd_data   : out   std_logic_vector(3 downto 0)--data signals for lcd
+    e          : out   std_logic;  --read/write, setup/data, and enable for lcd
+    rw         : out   std_logic;
+    rs         : out   std_logic;
+    lcd_data   : out   std_logic_vector(3 downto 0)
     );
 end entity;
 
