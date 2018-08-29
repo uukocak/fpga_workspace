@@ -4,10 +4,12 @@ library ieee;
 
 entity lcd_little_wrapper is
     port (
-    clk        : in    std_logic;  --system clock
-    reset_n    : in    std_logic;  --active low reinitializes lcd
-    rw, rs, e  : out   std_logic;  --read/write, setup/data, and enable for lcd
-    lcd_data   : out   std_logic_vector(3 downto 0)--data signals for lcd
+    clk      : in  std_logic;  --system clock
+    reset_n  : in  std_logic;  --active low reinitializes lcd
+    rw       : out std_logic;  --read/write
+    rs       : out std_logic;  --setup/data
+    e        : out std_logic;  --enable for lcd
+    lcd_data : out std_logic_vector(3 downto 0)--data signals for lcd
     );
 end lcd_little_wrapper;
 
@@ -33,22 +35,22 @@ architecture behavioral of lcd_little_wrapper is
     signal i_lcd_bus     : std_logic_vector(9 downto 0);
     signal i_busy        : std_logic;
     signal current_state : state_t := reset_st;
-    signal my_word       : vector_array_t := ("1001000001",
-                                              "1001000010",
-                                              "1001000011",
-                                              "1001000100",
-                                              "1001000101",
-                                              "1001000110",
-                                              "1001000111",
-                                              "1001001000",
-                                              "1001001001",
-                                              "1001001010",
-                                              "1001001011",
-                                              "1001001100",
-                                              "1001001101",
-                                              "1001001110",
-                                              "1001001111",
-                                              "1001010001");
+    signal my_word       : vector_array_t := ("1001001000",--h
+                                              "1001000101",--e
+                                              "1001001100",--l
+                                              "1001001100",--l
+                                              "1001001111",--o
+                                              "1000100000",--
+                                              "1001010111",--w
+                                              "1001001111",--o
+                                              "1001010010",--r
+                                              "1001001100",--l
+                                              "1001000100",--d
+                                              "1000100000",--
+                                              "1001000101",--e
+                                              "1001010011",--s
+                                              "1001000101",--e
+                                              "1001001110");--n
 
 begin
 
@@ -74,43 +76,47 @@ if(clk'EVENT and clk = '1') then
 
     if( reset_n = '1') then
         current_state <= reset_st;
+        word_index := 0;
+        clk_count := 0;
+    else
+
+        case( current_state ) is
+    
+            when reset_st =>
+                if( clk_count < 5000000 ) then -- 500 ms wait
+                    clk_count := clk_count + 1;
+                else
+                    clk_count := 0;
+                    current_state <= idle_st;
+                end if;
+    
+            when idle_st =>
+                if( i_busy = '0' and word_index < 16 )then
+                    i_lcd_bus <= my_word(word_index);
+                    lcd_enable <= '1';
+                    current_state <= write_st;
+                else
+                    lcd_enable <= '0';
+                    current_state <= idle_st;
+                end if;
+    
+            when write_st =>
+                if( clk_count < 1) then
+                    clk_count := clk_count + 1;
+                    current_state <= write_st;
+                else
+                    lcd_enable <= '0';
+                    word_index := word_index + 1;
+                    current_state <= idle_st;
+                end if;
+    
+            when others =>
+                current_state <= idle_st ;
+    
+        end case;
+
     end if;
-
-    case( current_state ) is
-
-        when reset_st =>
-            if( clk_count < 50000) then
-                clk_count := clk_count + 1;
-            else
-                clk_count := 0;
-                current_state <= idle_st;
-            end if;
-
-        when idle_st =>
-            if( i_busy = '0' and word_index < 16 ) then
-                i_lcd_bus <= my_word(word_index);
-                lcd_enable <= '1';
-                current_state <= write_st;
-            else
-                lcd_enable <= '0';
-                current_state <= idle_st;
-            end if;
-
-        when write_st =>
-            if( clk_count < 1) then
-                clk_count := clk_count + 1;
-                current_state <= write_st;
-            else
-                lcd_enable <= '0';
-                word_index := word_index + 1;
-                current_state <= idle_st;
-            end if;
-
-        when others =>
-            current_state <= idle_st ;
-
-    end case;
-
+    
 end if;
 
 end process;

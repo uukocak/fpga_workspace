@@ -28,7 +28,7 @@ end entity;
 ARCHITECTURE controller OF lcd_controller IS
   TYPE CONTROL IS(power_up, initialize, ready, send,send_byte);
   SIGNAL    state      : CONTROL;
-  CONSTANT  freq       : INTEGER := 50; --system clock frequency in MHz
+  CONSTANT  freq       : INTEGER := 10; --system clock frequency in MHz
 BEGIN
   PROCESS(clk)
     VARIABLE clk_count : INTEGER := 0; --event counter for timing
@@ -46,11 +46,23 @@ BEGIN
           IF(clk_count < (50000 * freq)) THEN    --wait 50 ms
             clk_count := clk_count + 1;
             state <= power_up;
+          ELSIF(clk_count = 50000 * freq) then
+            send_byte_buffer := "00000011";
+            send_byte_counter := 12*freq;
+            send_byte_prev_state := power_up;
+            state <= send_byte;
+            rs <= '0';
+            rw <= '0';
+            clk_count := clk_count + 1;
+           ELSIF(clk_count < 50040 * freq) then
+            state <= power_up;
+            rs <= '0';
+            rw <= '0';
+            clk_count := clk_count + 1;
           ELSE                                   --power-up complete
             clk_count := 0;
             rs <= '0';
             rw <= '0';
-            lcd_data <= "0011";
             state <= initialize;
           END IF;
 
@@ -59,22 +71,26 @@ BEGIN
           busy <= '1';
           clk_count := clk_count + 1;
           IF(clk_count = (10 * freq)) THEN       --function set
-            send_byte_buffer := "00111100";
+            send_byte_buffer := "00101000";
             send_byte_prev_state := initialize;
             state <= send_byte;
           ELSIF(clk_count = (60 * freq)) THEN    --wait 50 us
-            send_byte_buffer := "00001111";
+            send_byte_buffer := "00101000";
             send_byte_prev_state := initialize;
             state <= send_byte;
           ELSIF(clk_count = (130 * freq)) THEN    --display on/off control
+            send_byte_buffer := "00001111";
+            send_byte_prev_state := initialize;
+            state <= send_byte;
+          ELSIF(clk_count = (180 * freq)) THEN    --clear display
             send_byte_buffer := "00000001";
             send_byte_prev_state := initialize;
             state <= send_byte;
-          ELSIF(clk_count = (2130 * freq)) THEN  --wait 2 ms
+          ELSIF(clk_count = (2180 * freq)) THEN  --wait 2 ms, entry mode set
             send_byte_buffer := "00000110";
             send_byte_prev_state := initialize;
             state <= send_byte;
-          ELSIF (clk_count > (2130 * freq)) THEN  --initialization complete
+          ELSIF (clk_count > (2180 * freq)) THEN  --initialization complete
             clk_count := 0;
             busy <= '0';
             state <= ready;
@@ -93,8 +109,6 @@ BEGIN
             state <= send;
           ELSE
             busy <= '0';
-            rs <= '0';
-            rw <= '0';
             send_byte_buffer := "00000000";
             clk_count := 0;
             state <= ready;
@@ -103,7 +117,7 @@ BEGIN
         --send instruction to lcd
         WHEN send =>
         clk_count := clk_count + 1;
-        IF(clk_count = (50 * freq)) THEN  --do not exit for 50us
+        IF(clk_count = (50 * freq)) THEN
            busy <= '1';
            send_byte_prev_state := send;
            state <= send_byte;
@@ -116,31 +130,31 @@ BEGIN
 
         WHEN send_byte =>
 
-          IF(send_byte_counter < (2 * freq)) THEN       --function set
+          IF(send_byte_counter < (5 * freq)) THEN       --function set
             lcd_data <= send_byte_buffer(7 downto 4);   -- MSB
             e <= '0';
             state <= send_byte;
+          ELSIF(send_byte_counter < (7 * freq)) THEN
+            lcd_data <= send_byte_buffer(7 downto 4);
+            e <= '1';
+            state <= send_byte;
           ELSIF(send_byte_counter < (12 * freq)) THEN
             lcd_data <= send_byte_buffer(7 downto 4);
-            e <= '1';
-            state <= send_byte;
-          ELSIF(send_byte_counter < (14 * freq)) THEN
-            lcd_data <= send_byte_buffer(7 downto 4);
             e <= '0';
             state <= send_byte;
-          ELSIF(send_byte_counter < (16 * freq)) THEN
+          ELSIF(send_byte_counter < (17 * freq)) THEN
             lcd_data <= send_byte_buffer(3 downto 0);
             e <= '0';
             state <= send_byte;
-          ELSIF(send_byte_counter < (26 * freq)) THEN
+          ELSIF(send_byte_counter < (19 * freq)) THEN
             lcd_data <= send_byte_buffer(3 downto 0);
             e <= '1';
             state <= send_byte;
-          ELSIF(send_byte_counter < (28 * freq)) THEN
+          ELSIF(send_byte_counter < (24 * freq)) THEN
             lcd_data <= send_byte_buffer(3 downto 0);
             e <= '0';
             state <= send_byte;
-          ELSIF(send_byte_counter > (28 * freq)) THEN
+          ELSIF(send_byte_counter > (24 * freq)) THEN
             lcd_data <= "0000";
             e <= '0';
             state <= send_byte_prev_state;
