@@ -68,11 +68,11 @@ begin
 
 
 state_pro : process(current_state,clk,reset_n)
-    VARIABLE clk_count : INTEGER := 0;
-    VARIABLE word_index : INTEGER := 0;
+    variable clk_count : integer := 0;
+    variable word_index : integer := 0;
 begin
 
-if(clk'EVENT and clk = '1') then
+if(clk'event and clk = '1') then
 
     if( reset_n = '1') then
         current_state <= reset_st;
@@ -81,7 +81,7 @@ if(clk'EVENT and clk = '1') then
     else
 
         case( current_state ) is
-    
+
             when reset_st =>
                 if( clk_count < 5000000 ) then -- 500 ms wait
                     clk_count := clk_count + 1;
@@ -89,34 +89,36 @@ if(clk'EVENT and clk = '1') then
                     clk_count := 0;
                     current_state <= idle_st;
                 end if;
-    
+
             when idle_st =>
                 if( i_busy = '0' and word_index < 16 )then
-                    i_lcd_bus <= my_word(word_index);
-                    lcd_enable <= '1';
+                    clk_count := 0;
                     current_state <= write_st;
                 else
                     lcd_enable <= '0';
                     current_state <= idle_st;
                 end if;
-    
+
             when write_st =>
-                if( clk_count < 1) then
+                if( clk_count < 2) then
+                    i_lcd_bus <= my_word(word_index);
+                    lcd_enable <= '1';
                     clk_count := clk_count + 1;
                     current_state <= write_st;
                 else
                     lcd_enable <= '0';
                     word_index := word_index + 1;
+                    clk_count := 0;
                     current_state <= idle_st;
                 end if;
-    
+
             when others =>
                 current_state <= idle_st ;
-    
+
         end case;
 
     end if;
-    
+
 end if;
 
 end process;
