@@ -43,7 +43,7 @@ begin
           tx_line <= '1';
         end if;
 
-        if(tx_start = '1') then
+        if( tx_start = '1') then
           tx_package := ('1' & tx_byte & '0');
           tx_done <= '0';
           clock_counter := 0;
