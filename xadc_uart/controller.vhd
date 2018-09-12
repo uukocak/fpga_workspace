@@ -81,7 +81,8 @@ architecture Behavioral of controller is
     signal tx_line  : std_logic;
     signal tx_done  : std_logic;
 
-    type state_t is (idle, read_temp, read_voltage, read_vpn, read_vauxpn0, read_vauxpn8, pre_send, send);
+    --type state_t is (idle, read_temp, read_voltage, read_vpn, read_vauxpn0, read_vauxpn8, pre_send, send);
+    type state_t is (idle,read_vpn, pre_send, send);
 
     signal state : state_t := idle;
 
@@ -178,44 +179,44 @@ begin
                 xadc_addr <= "0000000";
                 xadc_en <='0';
                 if xadc_eos = '1' then
-                    state <= read_temp;
+                    state <= read_vpn;
                 else
                     state <= idle;
                 end if;
 
-          when read_temp =>
-              xadc_addr <= "0000000";
-              if counter < 1 then
-                  xadc_en <= '1';
-                  counter := counter + 1;
-                  state <= read_temp;
-              else
-                  xadc_en <= '0';
-                  if xadc_ready = '1' then
-                      counter := 0;
-                      temp_buffer := xadc_data;
-                      state <= read_voltage;
-                  else
-                      state <= read_temp;
-                  end if;
-              end if;
+        -- when read_temp =>
+        --     xadc_addr <= "0000000";
+        --     if counter < 1 then
+        --         xadc_en <= '1';
+        --         counter := counter + 1;
+        --         state <= read_temp;
+        --     else
+        --         xadc_en <= '0';
+        --         if xadc_ready = '1' then
+        --             counter := 0;
+        --             temp_buffer := xadc_data;
+        --             state <= read_voltage;
+        --         else
+        --             state <= read_temp;
+        --         end if;
+        --     end if;
 
-          when read_voltage =>
-          xadc_addr <= "0000001";
-          if counter < 1 then
-              xadc_en <= '1';
-              counter := counter + 1;
-              state <= read_voltage;
-          else
-              xadc_en <= '0';
-              if xadc_ready = '1' then
-                  counter := 0;
-                  voltage_buffer := xadc_data;
-                  state <= read_vpn;
-              else
-                  state <= read_voltage;
-              end if;
-          end if;
+        --  when read_voltage =>
+        --  xadc_addr <= "0000001";
+        --  if counter < 1 then
+        --      xadc_en <= '1';
+        --      counter := counter + 1;
+        --      state <= read_voltage;
+        --  else
+        --      xadc_en <= '0';
+        --      if xadc_ready = '1' then
+        --          counter := 0;
+        --          voltage_buffer := xadc_data;
+        --          state <= read_vpn;
+        --      else
+        --          state <= read_voltage;
+        --      end if;
+        --  end if;
 
 
           when read_vpn =>
@@ -229,94 +230,94 @@ begin
             if xadc_ready = '1' then
                 counter := 0;
                 vpn_buffer := xadc_data;
-                state <= read_vauxpn0;
+                state <= pre_send;
             else
                 state <= read_vpn;
             end if;
           end if;
 
-          when read_vauxpn0 =>
-          xadc_addr <= "0010000";
-          if counter < 1 then
-            xadc_en <= '1';
-            counter := counter + 1;
-            state <= read_vauxpn0;
-          else
-            xadc_en <= '0';
-            if xadc_ready = '1' then
-                counter := 0;
-                vauxpn0_buffer := xadc_data;
-                state <= read_vauxpn8;
-            else
-                state <= read_vauxpn0;
-            end if;
-          end if;
+         -- when read_vauxpn0 =>
+         -- xadc_addr <= "0010000";
+         -- if counter < 1 then
+         --   xadc_en <= '1';
+         --   counter := counter + 1;
+         --   state <= read_vauxpn0;
+         -- else
+         --   xadc_en <= '0';
+         --   if xadc_ready = '1' then
+         --       counter := 0;
+         --       vauxpn0_buffer := xadc_data;
+         --       state <= read_vauxpn8;
+         --   else
+         --       state <= read_vauxpn0;
+         --   end if;
+         -- end if;
 
-          when read_vauxpn8 =>
-          xadc_addr <= "0011000";
-          if counter < 1 then
-            xadc_en <= '1';
-            counter := counter + 1;
-            state <= read_vauxpn8;
-          else
-            xadc_en <= '0';
-            if xadc_ready = '1' then
-                counter := 0;
-                vauxpn8_buffer := xadc_data;
-                state <= pre_send;
-            else
-                state <= read_vauxpn8;
-            end if;
-          end if;
+         -- when read_vauxpn8 =>
+         -- xadc_addr <= "0011000";
+         -- if counter < 1 then
+         --   xadc_en <= '1';
+         --   counter := counter + 1;
+         --   state <= read_vauxpn8;
+         -- else
+         --   xadc_en <= '0';
+         --   if xadc_ready = '1' then
+         --       counter := 0;
+         --       vauxpn8_buffer := xadc_data;
+         --       state <= pre_send;
+         --   else
+         --       state <= read_vauxpn8;
+         --   end if;
+         -- end if;
 
             when pre_send =>
             if tx_done= '1' then
                 if counter = 0 then
-                    send_package := temp_buffer(15 downto 8);
-                    state <= send;
+                    --send_package := temp_buffer(15 downto 8);
+                    --state <= send;
                 elsif counter = 1 then
-                    send_package := temp_buffer(7 downto 0);
-                    state <= send;
+                    --send_package := temp_buffer(7 downto 0);
+                    --state <= send;
                 elsif counter = 2 then
-                    send_package := x"20";
-                    state <= send;
+                   -- send_package := x"20";
+                   -- state <= send;
                 elsif counter = 3 then
-                    send_package := voltage_buffer(15 downto 8);
-                    state <= send;
+                  --  send_package := voltage_buffer(15 downto 8);
+                   -- state <= send;
                 elsif counter = 4 then
-                    send_package := voltage_buffer(7 downto 0);
-                    state <= send;
+                    --send_package := voltage_buffer(7 downto 0);
+                    --state <= send;
                 elsif counter = 5 then
-                     send_package := x"20";
-                     state <= send;
+                    -- send_package := x"20";
+                    -- state <= send;
                 elsif counter = 6 then
-                     send_package := vpn_buffer(15 downto 8);
+                     send_package := "0000" & vpn_buffer(15 downto 12);
                      state <= send;
                 elsif counter = 7 then
-                     send_package := vpn_buffer(7 downto 0);
+                     send_package := vpn_buffer(11 downto 4);
                      state <= send;
                 elsif counter = 8 then
-                     send_package := x"20";
-                     state <= send;
+                   --  send_package := x"20";
+                   --  state <= send;
                 elsif counter = 9 then
-                     send_package := vauxpn0_buffer(15 downto 8);
-                     state <= send;
+                    -- send_package := vauxpn0_buffer(15 downto 8);
+                   --  state <= send;
                 elsif counter = 10 then
-                     send_package := vauxpn0_buffer(7 downto 0);
-                     state <= send;
+                  --   send_package := vauxpn0_buffer(7 downto 0);
+                   --  state <= send;
                 elsif counter = 11 then
-                     send_package := x"20";
-                     state <= send;
+                    -- send_package := x"20";
+                    -- state <= send;
                 elsif counter = 12 then
-                     send_package := vauxpn8_buffer(15 downto 8);
-                     state <= send;
+                   --  send_package := vauxpn8_buffer(15 downto 8);
+                  --   state <= send;
                 elsif counter = 13 then
-                     send_package := vauxpn8_buffer(7 downto 0);
-                     state <= send;
+                   --  send_package := vauxpn8_buffer(7 downto 0);
+                  --   state <= send;
                 elsif counter = 14 then
-                    send_package := x"0A";
-                    state <= send;
-                elsif counter > 100000000 then--1 s wait for (100 mhz)
+                   -- send_package := x"0A";
+                 --   state <= send;
+                elsif counter > 10000 then--1 s wait for (100 mhz)
                     counter := 0;
                     state <= idle;
                 else
