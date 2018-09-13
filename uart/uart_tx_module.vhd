@@ -17,14 +17,14 @@ end entity;
 
 architecture arch of  uart_tx_module is
 
-  signal clock_per_bit : integer := (clk_freq * 1000000) / baud_rate ;
+  constant clock_per_bit : integer := (clk_freq * 1000000) / baud_rate ;
 
 begin
 
   identifier : process(clk,tx_start,chip_enable)
   variable tx_package : std_logic_vector(9 downto 0);
-  variable clock_counter : integer := 0;
-  variable package_index : integer := 0;
+  variable clock_counter : integer range 0 to clock_per_bit := 0;
+  variable package_index : integer range 0 to 15 := 0;
   begin
 
     if(chip_enable = '1') then
@@ -43,7 +43,7 @@ begin
           tx_line <= '1';
         end if;
 
-        if( tx_start = '1') then
+        if(tx_start = '1') then
           tx_package := ('1' & tx_byte & '0');
           tx_done <= '0';
           clock_counter := 0;

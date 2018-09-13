@@ -32,8 +32,8 @@ architecture controller of lcd_controller is
 begin
 
     process(clk)
-        variable clk_count            : integer := 0; --event counter for timing
-        variable send_byte_counter    : integer := 0;
+        variable clk_count            : integer range 0 to 50040*freq := 0; --event counter for timing
+        variable send_byte_counter    : integer range 0 to 25*freq := 0;
         variable send_byte_buffer     : std_logic_vector(7 downto 0);
         variable send_byte_prev_state : state_t;
     begin

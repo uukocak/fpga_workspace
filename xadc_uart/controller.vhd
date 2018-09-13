@@ -127,17 +127,17 @@ begin
 
 
 
-        ila : ila_0
-        PORT MAP (
-            clk => clk,
-            probe0 => i_xadc_eos,
-            probe1 => i_xadc_en,
-            probe2 => i_xadc_ready,
-            probe3 => i_rst,
-            probe4 => i_tx_start,
-            probe5 => tx_byte,
-            probe6 => xadc_data
-        );
+      --  ila : ila_0
+      --  PORT MAP (
+      --      clk => clk,
+      --      probe0 => i_xadc_eos,
+      --      probe1 => i_xadc_en,
+      --      probe2 => i_xadc_ready,
+      --      probe3 => i_rst,
+      --      probe4 => i_tx_start,
+      --      probe5 => tx_byte,
+      --      probe6 => xadc_data
+      --  );
 
     uart_tx_module_i : uart_tx_module
     generic map (
@@ -152,7 +152,8 @@ begin
         tx_done     => tx_done);
 
     fsm : process(rst, clk, state)
-    variable counter,counter_2 : integer := 0;
+    variable counter           : integer range 0 to 16383 := 0;
+    variable counter_2         : integer range 0 to 3 := 0;
     variable temp_buffer       : std_logic_vector(15 downto 0);
     variable voltage_buffer    : std_logic_vector(15 downto 0);
     variable vpn_buffer        : std_logic_vector(15 downto 0);

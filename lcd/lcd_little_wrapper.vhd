@@ -35,22 +35,22 @@ architecture behavioral of lcd_little_wrapper is
     signal i_lcd_bus     : std_logic_vector(9 downto 0);
     signal i_busy        : std_logic;
     signal current_state : state_t := reset_st;
-    signal my_word       : vector_array_t := ("1001001000",--h
-                                              "1001000101",--e
-                                              "1001001100",--l
-                                              "1001001100",--l
-                                              "1001001111",--o
-                                              "1000100000",--
-                                              "1001010111",--w
-                                              "1001001111",--o
-                                              "1001010010",--r
-                                              "1001001100",--l
-                                              "1001000100",--d
-                                              "1000100000",--
-                                              "1001000101",--e
-                                              "1001010011",--s
-                                              "1001000101",--e
-                                              "1001001110");--n
+    constant my_word       : vector_array_t := ("1001001000",--h
+                                                "1001000101",--e
+                                                "1001001100",--l
+                                                "1001001100",--l
+                                                "1001001111",--o
+                                                "1000100000",--
+                                                "1001010111",--w
+                                                "1001001111",--o
+                                                "1001010010",--r
+                                                "1001001100",--l
+                                                "1001000100",--d
+                                                "1000100000",--
+                                                "1001000101",--e
+                                                "1001010011",--s
+                                                "1001000101",--e
+                                                "1001001110");--n
 
 begin
 
@@ -69,7 +69,7 @@ begin
 
 state_pro : process(current_state,clk,reset_n)
     variable clk_count : integer := 0;
-    variable word_index : integer := 0;
+    variable word_index : integer range 0 to 31 := 0;
 begin
 
 if(clk'event and clk = '1') then
